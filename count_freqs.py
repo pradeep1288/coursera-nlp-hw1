@@ -138,10 +138,7 @@ class Hmm(object):
             count = float(parts[0])
             if parts[1] == "WORDTAG":
                 ne_tag = parts[2]
-                if count < 5:
-                    word = "_RARE_"
-                else:
-                    word = parts[3]
+                word = parts[3]
                 self.emission_counts[(word, ne_tag)] = count
                 self.all_states.add(ne_tag)
             elif parts[1].endswith("GRAM"):
