@@ -117,10 +117,7 @@ class Hmm(object):
         """
         # First write counts for emissions
         for word, ne_tag in self.emission_counts:
-            if self.emission_counts[(word, ne_tag)] < 5:
-                output.write("%i _RARE_ %s %s\n" % (self.emission_counts[(word, ne_tag)], ne_tag, word))
-            else:
-                output.write("%i WORDTAG %s %s\n" % (self.emission_counts[(word, ne_tag)], ne_tag, word))
+            output.write("%i WORDTAG %s %s\n" % (self.emission_counts[(word, ne_tag)], ne_tag, word))
 
 
         # Then write counts for all ngrams
