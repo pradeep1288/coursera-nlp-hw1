@@ -41,47 +41,6 @@ class Tagger(object):
             else:
                 corpus_file_out.write(line)
             
-    
-    def train(self, corpus_file):
-        """
-        Count n-gram frequencies and emission probabilities from a corpus file.
-        """
-        ngram_iterator = \
-            get_ngrams(sentence_iterator(simple_conll_corpus_iterator(corpus_file)), self.n)
-
-        for ngram in ngram_iterator:
-            #Sanity check: n-gram we get from the corpus stream needs to have the right length
-            assert len(ngram) == self.n, "ngram in stream is %i, expected %i" % (len(ngram, self.n))
-
-            tagsonly = tuple([ne_tag for word, ne_tag in ngram]) #retrieve only the tags            
-            for i in xrange(2, self.n+1): #Count NE-tag 2-grams..n-grams
-                self.ngram_counts[i-1][tagsonly[-i:]] += 1
-            
-            if ngram[-1][0] is not None: # If this is not the last word in a sentence
-                self.ngram_counts[0][tagsonly[-1:]] += 1 # count 1-gram
-                self.emission_counts[ngram[-1]] += 1 # and emission frequencies
-
-            # Need to count a single n-1-gram of sentence start symbols per sentence
-            if ngram[-2][0] is None: # this is the first n-gram in a sentence
-                self.ngram_counts[self.n - 2][tuple((self.n - 1) * ["*"])] += 1
-
-    def write_counts(self, output, printngrams=[1,2,3]):
-        """
-        Writes counts to the output file object.
-        Format:
-
-        """
-        # First write counts for emissions
-        for word, ne_tag in self.emission_counts:
-            output.write("%i WORDTAG %s %s\n" % (self.emission_counts[(word, ne_tag)], ne_tag, word))
-
-
-        # Then write counts for all ngrams
-        for n in printngrams:            
-            for ngram in self.ngram_counts[n-1]:
-                ngramstr = " ".join(ngram)
-                output.write("%i %i-GRAM %s\n" %(self.ngram_counts[n-1][ngram], n, ngramstr))
-
     def read_counts(self, corpusfile):
         for line in corpusfile:
             parts = line.strip().split(" ")
@@ -97,12 +56,24 @@ class Tagger(object):
                 self.ngram_counts[n-1][ngram] = count
 
     def compute_emission(self, word, ne_tag):
-        print self.emission_counts
         if self.word_map.has_key(word):
             return self.emission_counts[(word, ne_tag)]/self.ngram_counts[0].get((ne_tag,))
         else:
             return self.emission_counts[("RARE", ne_tag)]/self.ngram_counts[0].get((ne_tag,))
 
+    def max_emission(self, word):
+        if (self.compute_emission(word , "I-GENE") > self.compute_emission(word , "O")):
+            return "I-GENE"
+        else:
+            return "O"
+
+    def tag_words(self, corpus_file_in, corpus_file_out):
+        for line in corpus_file_in:
+            if line.strip() == "":
+                corpus_file_out.write(line)
+            else:
+                tag = self.max_emission(line.strip())
+                corpus_file_out.write(line.strip() + " " + tag + "\n")
 
 def usage():
     print """
@@ -131,4 +102,13 @@ if __name__ == "__main__":
     gene_count = file("gene.count", "r")
     tagger.read_counts(gene_count)
     gene_count.close()
-    print tagger.compute_emission("consists","O")
+    
+    #Read test data
+    gene_input_file = file("gene.dev", "r")
+    gene_out_file = file("gene.out", "w")
+    tagger.tag_words(gene_input_file, gene_out_file)
+    gene_input_file.close()
+    gene_out_file.close()
+    
+    print tagger.max_emission("sent")
+
