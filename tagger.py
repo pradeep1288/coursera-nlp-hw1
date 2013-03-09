@@ -14,6 +14,10 @@ class Tagger(object):
     """
     def __init__(self):
         self.word_map = defaultdict(int)
+        self.n = 3
+        self.emission_counts = defaultdict(int)
+        self.ngram_counts = [defaultdict(int) for i in xrange(self.n)]
+        self.all_states = set()
 
     def build_word_map(self, corpus_file):
         """
@@ -37,9 +41,7 @@ class Tagger(object):
             else:
                 corpus_file_out.write(line)
             
-
     
-
     def train(self, corpus_file):
         """
         Count n-gram frequencies and emission probabilities from a corpus file.
@@ -81,12 +83,6 @@ class Tagger(object):
                 output.write("%i %i-GRAM %s\n" %(self.ngram_counts[n-1][ngram], n, ngramstr))
 
     def read_counts(self, corpusfile):
-
-        self.n = 3
-        self.emission_counts = defaultdict(int)
-        self.ngram_counts = [defaultdict(int) for i in xrange(self.n)]
-        self.all_states = set()
-
         for line in corpusfile:
             parts = line.strip().split(" ")
             count = float(parts[0])
@@ -99,7 +95,13 @@ class Tagger(object):
                 n = int(parts[1].replace("-GRAM",""))
                 ngram = tuple(parts[2:])
                 self.ngram_counts[n-1][ngram] = count
-                
+
+    def compute_emission(self, word, ne_tag):
+        print self.emission_counts
+        if self.word_map.has_key(word):
+            return self.emission_counts[(word, ne_tag)]/self.ngram_counts[0].get((ne_tag,))
+        else:
+            return self.emission_counts[("RARE", ne_tag)]/self.ngram_counts[0].get((ne_tag,))
 
 
 def usage():
@@ -126,3 +128,7 @@ if __name__ == "__main__":
     tagger.replace_low_freq_words(input, output)
     input.close()
     output.close()
+    gene_count = file("gene.count", "r")
+    tagger.read_counts(gene_count)
+    gene_count.close()
+    print tagger.compute_emission("consists","O")
