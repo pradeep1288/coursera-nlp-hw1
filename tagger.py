@@ -33,11 +33,10 @@ class Tagger(object):
         for line in corpus_file:
             word = line.split(" ")
             if self.word_map[word[0]] < 5:
-                line = line.replace(word[0], "_RARE_")
-                corpus_file_out.write(line)
+                corpus_file_out.write("RARE " + word[1])  
             else:
                 corpus_file_out.write(line)
-
+            
 
     
 
@@ -117,7 +116,7 @@ if __name__ == "__main__":
 
     try:
         input = file(sys.argv[1],"r")
-        output = file("test.data", "w")
+        output = file("test.out", "w")
     except IOError:
         sys.stderr.write("ERROR: Cannot read inputfile %s.\n" % arg)
         sys.exit(1)
