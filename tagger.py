@@ -62,7 +62,7 @@ class Tagger(object):
             return self.emission_counts[("RARE", ne_tag)]/self.ngram_counts[0].get((ne_tag,))
 
     def max_emission(self, word):
-        if (self.compute_emission(word , "I-GENE") > self.compute_emission(word , "O")):
+        if (self.compute_emission(word , "I-GENE") >= self.compute_emission(word , "O")):
             return "I-GENE"
         else:
             return "O"
