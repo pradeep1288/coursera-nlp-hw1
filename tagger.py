@@ -104,11 +104,8 @@ if __name__ == "__main__":
     gene_count.close()
     
     #Read test data
-    gene_input_file = file("gene.dev", "r")
-    gene_out_file = file("gene.out", "w")
+    gene_input_file = file("gene.test", "r")
+    gene_out_file = file("gene_test.p1.out", "w")
     tagger.tag_words(gene_input_file, gene_out_file)
     gene_input_file.close()
     gene_out_file.close()
-    
-    print tagger.max_emission("sent")
-
