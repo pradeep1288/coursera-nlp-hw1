@@ -8,6 +8,50 @@ from collections import defaultdict
 import math
     
 
+def simple_conll_corpus_iterator(corpus_file):
+    """
+    Get an iterator object over the corpus file. The elements of the
+    iterator contain (word, ne_tag) tuples. Blank lines, indicating
+    sentence boundaries return (None, None).
+    """
+    l = corpus_file.readline()
+    while l:
+        line = l.strip()
+        if line: # Nonempty line
+            # Extract information from line.
+            # Each line has the format
+            # word pos_tag phrase_tag ne_tag
+            fields = line.split(" ")
+            ne_tag = fields[-1]
+            #phrase_tag = fields[-2] #Unused
+            #pos_tag = fields[-3] #Unused
+            word = " ".join(fields[:-1])
+            yield word, ne_tag
+        else: # Empty line
+            yield (None, None)                        
+        l = corpus_file.readline()
+
+def sentence_iterator(corpus_iterator):
+    """
+    Return an iterator object that yields one sentence at a time.
+    Sentences are represented as lists of (word, ne_tag) tuples.
+    """
+    current_sentence = [] #Buffer for the current sentence
+    for l in corpus_iterator:        
+            if l==(None, None):
+                if current_sentence:  #Reached the end of a sentence
+                    yield current_sentence
+                    current_sentence = [] #Reset buffer
+                else: # Got empty input stream
+                    sys.stderr.write("WARNING: Got empty input file/stream.\n")
+                    raise StopIteration
+            else:
+                current_sentence.append(l) #Add token to the buffer
+
+    if current_sentence: # If the last line was blank, we're done
+        yield current_sentence  #Otherwise when there is no more token
+                                # in the stream return the last sentence.
+
 class viterbi(object):
     """viterbi algorithm tagger class"""
     def __init__(self):
