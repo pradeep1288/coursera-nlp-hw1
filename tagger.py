@@ -6,6 +6,49 @@ __date__ ="March 8, 2013"
 import sys
 from collections import defaultdict
 import math
+    
+
+class viterbi(object):
+    """viterbi algorithm tagger class"""
+    def __init__(self):
+        super(viterbi, self).__init__()
+        self.n = 3
+        self.emission_counts = defaultdict(int)
+        self.ngram_counts = defaultdict(int)
+        self.word_map = defaultdict(int)
+        self.all_states = set()
+
+    
+    def build_word_map(self, corpus_file):
+        """
+        build word map along with their frequencies of occurence
+        """
+        for line in corpus_file:
+            word = line.split(" ")
+            if self.word_map.has_key(word[0]):
+                self.word_map[word[0]] += 1
+            else:
+                self.word_map[word[0]] = 1
+
+    def read_counts(self, corpusfile):
+        for line in corpusfile:
+            parts = line.strip().split(" ")
+            count = float(parts[0])
+            if parts[1] == "WORDTAG":
+                ne_tag = parts[2]
+                word = parts[3]
+                self.emission_counts[(word, ne_tag)] = count
+                self.all_states.add(ne_tag)
+            elif parts[1].endswith("GRAM"):
+                n = int(parts[1].replace("-GRAM",""))
+                ngram = tuple(parts[2:])
+                self.ngram_counts[n-1][ngram] = count
+
+    def compute_emission(self, word, ne_tag):
+        if self.word_map.has_key(word):
+            return self.emission_counts[(word, ne_tag)]/self.ngram_counts[0].get((ne_tag,))
+        else:
+            return self.emission_counts[("RARE", ne_tag)]/self.ngram_counts[0].get((ne_tag,))
 
 
 class Tagger(object):
