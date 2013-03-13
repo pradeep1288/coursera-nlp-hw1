@@ -88,6 +88,11 @@ class viterbi(object):
                 ngram = tuple(parts[2:])
                 self.ngram_counts[n-1][ngram] = count
 
+    def read_sentences(self, corpus_file):
+        my_sentence_iterator = sentence_iterator(simple_conll_corpus_iterator(corpus_file))
+        for sentence in my_sentence_iterator:
+            pass
+
     def compute_emission(self, word, ne_tag):
         if self.word_map.has_key(word):
             return self.emission_counts[(word, ne_tag)]/self.ngram_counts[0].get((ne_tag,))
@@ -180,6 +185,7 @@ if __name__ == "__main__":
     except IOError:
         sys.stderr.write("ERROR: Cannot read inputfile %s.\n" % arg)
         sys.exit(1)
+    '''
     tagger = Tagger()
     tagger.build_word_map(input)
     input.seek(0)
@@ -196,3 +202,6 @@ if __name__ == "__main__":
     tagger.tag_words(gene_input_file, gene_out_file)
     gene_input_file.close()
     gene_out_file.close()
+    '''
+    viterbi_obj = viterbi()
+    viterbi_obj.read_sentences(input)
