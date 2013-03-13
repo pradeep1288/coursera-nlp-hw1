@@ -52,10 +52,10 @@ def sentence_iterator(corpus_iterator):
         yield current_sentence  #Otherwise when there is no more token
                                 # in the stream return the last sentence.
 
-class viterbi(object):
-    """viterbi algorithm tagger class"""
+class Viterbi(object):
+    """Viterbi algorithm tagger class"""
     def __init__(self):
-        super(viterbi, self).__init__()
+        super(Viterbi, self).__init__()
         self.n = 3
         self.emission_counts = defaultdict(int)
         self.ngram_counts = [defaultdict(int) for i in xrange(self.n)]
@@ -208,7 +208,7 @@ if __name__ == "__main__":
     gene_count = file("gene.count", "r")
     gene_dev = file("gene.dev", "r")
     gene_train = file("gene.train", "r")
-    viterbi_obj = viterbi()
+    viterbi_obj = Viterbi()
     viterbi_obj.build_word_map(gene_train)
     viterbi_obj.read_counts(gene_count)
     #viterbi_obj.read_sentences(gene_dev)
