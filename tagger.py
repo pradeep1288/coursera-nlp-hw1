@@ -99,8 +99,8 @@ class Viterbi(object):
         else:
             return self.emission_counts[("RARE", ne_tag)]/self.ngram_counts[0].get((ne_tag,))
 
-    def foo():
-        pass
+    def get_trigram_probability(self, u, v, w):
+        return self.ngram_counts[2].get((v,w,u))/self.ngram_counts[1].get((v,w))
 
 class Tagger(object):
     """
@@ -212,3 +212,5 @@ if __name__ == "__main__":
     viterbi_obj.build_word_map(gene_train)
     viterbi_obj.read_counts(gene_count)
     #viterbi_obj.read_sentences(gene_dev)
+    print viterbi_obj.get_trigram_probability('O','O','I-GENE')
+    print viterbi_obj.get_trigram_probability('I-GENE','*','O')
