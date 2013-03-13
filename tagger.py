@@ -58,7 +58,7 @@ class viterbi(object):
         super(viterbi, self).__init__()
         self.n = 3
         self.emission_counts = defaultdict(int)
-        self.ngram_counts = defaultdict(int)
+        self.ngram_counts = [defaultdict(int) for i in xrange(self.n)]
         self.word_map = defaultdict(int)
         self.all_states = set()
 
@@ -91,7 +91,7 @@ class viterbi(object):
     def read_sentences(self, corpus_file):
         my_sentence_iterator = sentence_iterator(simple_conll_corpus_iterator(corpus_file))
         for sentence in my_sentence_iterator:
-            pass
+            #do something
 
     def compute_emission(self, word, ne_tag):
         if self.word_map.has_key(word):
@@ -99,6 +99,8 @@ class viterbi(object):
         else:
             return self.emission_counts[("RARE", ne_tag)]/self.ngram_counts[0].get((ne_tag,))
 
+    def print_ngram(self, n):
+        print self.ngram_counts[n-1].get(('O', 'O', 'I-GENE')
 
 class Tagger(object):
     """
@@ -180,8 +182,8 @@ if __name__ == "__main__":
         sys.exit(2)
 
     try:
-        input = file(sys.argv[1],"r")
-        output = file("test.out", "w")
+        '''input = file(sys.argv[1],"r")'''
+        '''output = file("test.out", "w")'''
     except IOError:
         sys.stderr.write("ERROR: Cannot read inputfile %s.\n" % arg)
         sys.exit(1)
@@ -203,5 +205,11 @@ if __name__ == "__main__":
     gene_input_file.close()
     gene_out_file.close()
     '''
+    gene_count = file("gene.count", "r")
+    gene_dev = file("gene.dev", "r")
+    gene_train = file("gene.train", "r")
     viterbi_obj = viterbi()
-    viterbi_obj.read_sentences(input)
+    viterbi_obj.build_word_map(gene_train)
+    viterbi_obj.read_counts(gene_count)
+    #viterbi_obj.read_sentences(gene_dev)
+    viterbi_obj.print_ngram(3)
