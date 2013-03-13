@@ -91,7 +91,7 @@ class Viterbi(object):
     def read_sentences(self, corpus_file):
         my_sentence_iterator = sentence_iterator(simple_conll_corpus_iterator(corpus_file))
         for sentence in my_sentence_iterator:
-            #do something
+            pass
 
     def compute_emission(self, word, ne_tag):
         if self.word_map.has_key(word):
@@ -99,8 +99,8 @@ class Viterbi(object):
         else:
             return self.emission_counts[("RARE", ne_tag)]/self.ngram_counts[0].get((ne_tag,))
 
-    def print_ngram(self, n):
-        print self.ngram_counts[n-1].get(('O', 'O', 'I-GENE')
+    def foo():
+        pass
 
 class Tagger(object):
     """
@@ -212,4 +212,3 @@ if __name__ == "__main__":
     viterbi_obj.build_word_map(gene_train)
     viterbi_obj.read_counts(gene_count)
     #viterbi_obj.read_sentences(gene_dev)
-    viterbi_obj.print_ngram(3)
